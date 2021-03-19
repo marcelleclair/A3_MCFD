@@ -1,7 +1,7 @@
 function cMap = makeCMap(l,w,ds,boxes)
 
-nx = round(l/ds);
-ny = round(w/ds);
+nx = ceil(l/ds) + 1;
+ny = ceil(w/ds) + 1;
 cMap = ones(ny,nx);
 
 x = ds*(0:1:nx-1);

@@ -58,8 +58,8 @@ end
 
 V = G\F;
 
-V_map = reshape(V,[ny,nx]);
-[Ex,Ey] = gradient(V_map,ds);
+V = reshape(V,[ny,nx]);
+[Ex,Ey] = gradient(V,ds);
 Ex = -1.*Ex;
 Ey = -1.*Ey;
 % Jx = cMap.*Ex;

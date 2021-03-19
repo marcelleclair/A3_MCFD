@@ -18,7 +18,7 @@ tau_mn = 0.2e-12; % given mean time between collisions
 t = 0; % current time
 n = 0; % current number of steps
 dt = 5e-15; % time step duration
-t_max = 1000*dt; % run for 1000 cycles
+t_max = 500*dt; % run for 1000 cycles
 P_sca = 1 - exp(-dt / tau_mn); % scattering prob. per e- per dt
 rho = 1e15; % electron densigy (cm^-2)
 % P_sca = 0;
@@ -28,17 +28,17 @@ v_th = sqrt((2 * C.kb * T_i) / m_n); % mean thermal velocity of electrons
 l_mn = v_th * tau_mn;
 
 % Define spatial and temporal boundaries
-num_e = 30000; % number of electrons
+num_e = 10000; % number of electrons
 num_disp = 10; % number of electrons displayed
 x_max = 200e-9; % maximum x position (nm)
 y_max = 100e-9; % maximum y position (nm)
 
-% Set static electric field
-V0 = 0.1;
-Ex = V0/x_max; % 500 kV/m due to 0.1 V drop over 200 nm
-Ey = 0;
-Fx = Ex*C.q_0;
-Fy = Ey*C.q_0;
+% % Set static electric field
+% V0 = 0.1;
+% Ex = V0/x_max; % 500 kV/m due to 0.1 V drop over 200 nm
+% Ey = 0;
+% Fx = Ex*C.q_0;
+% Fy = Ey*C.q_0;
 
 % boxes extend past outer bounds to top electrons from bouncing
 % between the box and boundary
@@ -47,9 +47,19 @@ box2 = Obstruction([80e-9 60e-9], 40e-9, 50e-9, 0);
 boxes = [box1 box2]; % array of all obstructions
 
 % Find potential with resistive boxes included
-% V0 = 0.1;
-% cMap = makeCMap(x_max,y_max,2e-9,boxes);
-% [V,Ex,Ey] = v_fd(V0,cMap,2e-9);
+ds = 2e-9; % grid-spacing for FD
+V0 = 1;
+cMap = makeCMap(x_max,y_max,ds,boxes);
+[V,Ex,Ey] = v_fd(V0,cMap,ds);
+
+figure("Name", "FD Potential");
+surf(V);
+pbaspect([2 1 1])
+view([1 -2 2])
+
+figure("Name", "FD Electric Fields");
+quiver(Ex,Ey,3);
+pbaspect([2 1 1])
 
 % t_slc = zeros(1, num_e); % Times since last colision
 % col_total = 0; % cumulative number of electron collisions and scatters
@@ -129,9 +139,10 @@ while t < t_max
     % compute new position
 %     x = x + vx * dt;
 %     y = y + vy * dt;
-    x = xp + vx*dt + 0.5*Fx*(dt^2)/m_n;
+    [Fx,Fy] = getForces(x,y,Ex,Ey,ds);
+    x = xp + vx.*dt + 0.5.*Fx.*(dt.^2)./m_n;
     vx = (x - xp) ./ dt;
-    y = yp + vy*dt + 0.5*Fy*(dt^2)/m_n;
+    y = yp + vy.*dt + 0.5.*Fy.*(dt.^2)./m_n;
     vy = (y - yp) ./ dt;
     % scatter electrons
     scatter = rand(1,num_e) < P_sca;

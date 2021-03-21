@@ -48,7 +48,7 @@ boxes = [box1 box2]; % array of all obstructions
 
 % Find potential with resistive boxes included
 ds = 2e-9; % grid-spacing for FD
-V0 = 0.1;
+V0 = 0.8;
 cMap = makeCMap(x_max,y_max,ds,boxes);
 [V,Ex,Ey] = v_fd(V0,cMap,ds);
 
